@@ -1,0 +1,35 @@
+#!/usr/bin/expect
+# Enter a password to mount the dropbox directory
+
+# Check for the amount of input arguments
+if { $argc < 2 } {
+    puts "Invalid amount of input arguments, <2> expected, given <$argc>, e.g. <PASSWORD> <DBXFS CONFIG FILE>, aborting"
+    exit 1
+} elseif { $argc > 2 } {
+    puts "Invalid amount of input arguments, <2> expected, given <$argc>, e.g. <PASSWORD> <DBXFS CONFIG FILE>, aborting"
+    exit 1
+}
+
+# Retrieve the input arguments
+set ARG_PASSWORD [lindex $argv 0]
+set ARG_CONFIG [lindex $argv 1]
+set timeout 30
+
+# Try to mount the dropbox directory
+puts "Mounting dropbox directory <config=$ARG_CONFIG> ..."
+spawn /usr/local/bin/dbxfs -o ro -c $ARG_CONFIG
+
+expect {
+	"to quit):" {
+		send "$ARG_PASSWORD\n"
+	}
+	timeout {
+		puts "Sending password failed, timeout occured, aborting"
+		exit 1
+	}
+}
+
+wait %%
+
+puts "Dropbox mount complete"
+exit 0
